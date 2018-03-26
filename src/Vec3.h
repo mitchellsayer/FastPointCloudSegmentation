@@ -10,20 +10,9 @@ class Vec3 {
     float theta_horizontal;
     float label;
 
-    Vec3() {
-      x = 0;
-      y = 0;
-      z = 0;
-      r = 0;
-      theta = 0;
-      label = -1;
-      theta_horizontal = 0;
-    };
+    Vec3() : x(0), y(0), z(0), r(0), theta(0), label(-1), theta_horizontal(0) {};
 
-    Vec3(double a, double b, double c) {
-      x = a;
-      y = b;
-      z = c;
+    Vec3(double a, double b, double c) : x(a), y(b), z(c) {
       r = sqrt(x*x + y*y);
       theta = atan2(z, r) * 180 / 3.1415926;
       label = -1;

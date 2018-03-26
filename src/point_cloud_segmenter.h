@@ -1,7 +1,7 @@
 #include <vector>
-#include "Vec3.h"
+#include "vec3.h"
 
-struct Scanline { 
+struct Scanline {
   std::vector<int> s_queue;
   std::vector<int> e_queue;
   std::vector<int> labels;
@@ -31,19 +31,6 @@ class PointCloudSegmenter {
     int max_x;
     int max_y;
 
-    PointCloudSegmenter(int m_x, int m_y, int iterations, int num_lpr, int num_segs, double seed_thresh, double dist_thresh, int n_scan, double run_thresh, double merge_thresh) { //Constructor
-      n_iter = iterations;
-      n_lpr = num_lpr;
-      n_segs = num_segs;
-      th_seeds = seed_thresh;
-      th_dist = dist_thresh;
-      max_x = m_x;
-      max_y = m_y;
-      n_scanlines = n_scan;
-      th_run = run_thresh;
-      th_merge = merge_thresh;
-    } 
-
     PointCloudSegmenter() {
       n_iter = 0;
       n_lpr = 0;
@@ -57,12 +44,25 @@ class PointCloudSegmenter {
       th_merge = 1.0;
     }
 
+    PointCloudSegmenter(int m_x, int m_y, int iterations, int num_lpr, int num_segs, double seed_thresh, double dist_thresh, int n_scan, double run_thresh, double merge_thresh) { //Constructor
+      n_iter = iterations;
+      n_lpr = num_lpr;
+      n_segs = num_segs;
+      th_seeds = seed_thresh;
+      th_dist = dist_thresh;
+      max_x = m_x;
+      max_y = m_y;
+      n_scanlines = n_scan;
+      th_run = run_thresh;
+      th_merge = merge_thresh;
+    }
+
     ~PointCloudSegmenter() {} //Deconstructor
 
     //********************** GPF ***************************
 
     void GroundPlaneFitting( std::vector<Vec3>& cloud ); //Main Loop
-    
+
     void ExtractInitialSeeds(std::vector<Vec3>& cloud_seg, std::vector<Vec3>& seeds); //Returns inital seeds to be used in first plane model estimation
 
     Vec3 CalculatePlaneNormal(std::vector<Vec3>& cur_p_gnd); //Returns the normal of the estimated ground plane model

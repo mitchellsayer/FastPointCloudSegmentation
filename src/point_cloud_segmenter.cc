@@ -5,8 +5,6 @@
   Date: MAR 1 2018
 ***************************************************************************************/
 
-//TODO: Fix nearest neigbor (kdtree)
-
 #include <vector>
 #include <algorithm>
 #include <math.h>
@@ -14,6 +12,9 @@
 #include <ctime>
 #include <string>
 #include "point_cloud_segmenter.h"
+#include "nanoflann.hpp"
+
+typedef nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L2_Simple_Adaptor<float, PointCloud>, PointCloud, 3> point_cloud_tree;
 
 //************************************************************************************************
 
@@ -303,6 +304,13 @@ std::vector<Vec3> PointCloudSegmenter::ScanLineRun(std::vector<Vec3>& cloud) {
       s_it--;
     } else {
       std::sort(s_it->points.begin(), s_it->points.end(), CompareTheta);
+
+      PointCloud point_cloud(s_it->points);
+
+      point_cloud_tree * tree = new point_cloud_tree(3 /* dim */, point_cloud, nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */));
+      tree->buildIndex();
+
+      s_it->tree = tree;
     }
   }
 

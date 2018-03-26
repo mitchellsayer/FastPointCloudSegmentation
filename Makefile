@@ -1,5 +1,5 @@
 all: build run
-build:
+build: main.cc
 	cd src && g++ main.cc -o main.o
 	mkdir -p build && mv src/main.o build/
 run: build

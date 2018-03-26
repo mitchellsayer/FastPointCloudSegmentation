@@ -9,7 +9,7 @@
 
 #include <vector>
 #include <algorithm>
-#include <math.h> 
+#include <math.h>
 #include <iostream>
 #include <ctime>
 #include <string>
@@ -19,16 +19,16 @@
 
 Vec3 cloud_centroid;
 
-bool CompareZ(Vec3 const& a, Vec3 const& b) { 
-  return a.z < b.z; 
+bool CompareZ(Vec3 const& a, Vec3 const& b) {
+  return a.z < b.z;
 }
 
-bool CompareX(Vec3 const& a, Vec3 const& b) { 
-  return a.x < b.x; 
+bool CompareX(Vec3 const& a, Vec3 const& b) {
+  return a.x < b.x;
 }
 
-bool CompareTheta(Vec3 const& a, Vec3 const& b) { 
-  return a.theta_horizontal < b.theta_horizontal; 
+bool CompareTheta(Vec3 const& a, Vec3 const& b) {
+  return a.theta_horizontal < b.theta_horizontal;
 }
 
 
@@ -36,7 +36,7 @@ bool CompareTheta(Vec3 const& a, Vec3 const& b) {
   Main implementation of GPF
     - Split data into n_segs along the x-axis (dir of travel)
     - Get initial seeds and use them to create first plane estimation
-    - Repeat for n_iters using the estimated gnd points from each iter to 
+    - Repeat for n_iters using the estimated gnd points from each iter to
         calculate the new estimated
 */
 void  PointCloudSegmenter::GroundPlaneFitting(std::vector<Vec3>& cloud) {
@@ -58,7 +58,7 @@ void  PointCloudSegmenter::GroundPlaneFitting(std::vector<Vec3>& cloud) {
 
     cloud_segs[cur_seg].push_back(*it);
   }
-  
+
   std::vector<Vec3> cur_p_gnd;  //Pts belonging to ground surface in current segment iteration
   std::vector<Vec3> cur_p_ngnd; //Pts not belonging to ground surface in current segment iteration
   std::vector<Vec3> cur_p_list;
@@ -105,9 +105,9 @@ void  PointCloudSegmenter::GroundPlaneFitting(std::vector<Vec3>& cloud) {
             cur_p_ngnd.push_back(*seg_it);
             cur_p_list.push_back(*seg_it);
           }
-          
+
         }
-      } 
+      }
     }
 
     //Add results from current segment to main sets
@@ -147,10 +147,10 @@ void PointCloudSegmenter::ExtractInitialSeeds(std::vector<Vec3>& cloud_seg, std:
 
         lpr.x += it->x;
         lpr.y += it->y;
-        lpr.z += it->z;  
+        lpr.z += it->z;
 
-        i++;    
-      }      
+        i++;
+      }
     }
 
     lpr.x /= n_lpr;
@@ -168,7 +168,7 @@ void PointCloudSegmenter::ExtractInitialSeeds(std::vector<Vec3>& cloud_seg, std:
 
 
 /*
-  Calculating Estimated Plane Normal: 
+  Calculating Estimated Plane Normal:
     1. Calculate the centroid of the points
     2. Calculate the covariance matrix of the points relative to the centroid
     3. Find the main axis (the component of the plane normal which will have the largest absolute value)
@@ -186,7 +186,7 @@ Vec3 PointCloudSegmenter::CalculatePlaneNormal(std::vector<Vec3>& cur_p_gnd) {
     for (it = cur_p_gnd.begin(); it != cur_p_gnd.end(); it++) {
       centroid.x += it->x;
       centroid.y += it->y;
-      centroid.z += it->z; 
+      centroid.z += it->z;
     }
 
     centroid.x /= n;
@@ -196,7 +196,7 @@ Vec3 PointCloudSegmenter::CalculatePlaneNormal(std::vector<Vec3>& cur_p_gnd) {
     cloud_centroid = centroid;
 
     //Calc covarience matrix
-    double xx = 0, xy = 0, xz = 0, 
+    double xx = 0, xy = 0, xz = 0,
            yy = 0, yz = 0, zz = 0;
 
     Vec3 r;
@@ -224,7 +224,7 @@ Vec3 PointCloudSegmenter::CalculatePlaneNormal(std::vector<Vec3>& cur_p_gnd) {
 
     // Pick path with best conditioning
     if (det_max == det_x) {
-      norm.x = det_x; 
+      norm.x = det_x;
       norm.y = xz*yz - xy*zz;
       norm.z = xy*yz - xz*yy;
     } else if (det_max == det_y) {
@@ -254,7 +254,7 @@ Vec3 PointCloudSegmenter::CalculatePlaneNormal(std::vector<Vec3>& cur_p_gnd) {
 
 /*
   Main Implementation of Scan Line Run:
-    
+
   TODO: Properly identify scan lines, Change label implementation
 */
 std::vector<Vec3> PointCloudSegmenter::ScanLineRun(std::vector<Vec3>& cloud) {
@@ -295,7 +295,7 @@ std::vector<Vec3> PointCloudSegmenter::ScanLineRun(std::vector<Vec3>& cloud) {
     scanlines[scan_index].points.push_back(*v_it);
   }
 
-  //Index scanlines by theta 
+  //Index scanlines by theta
   for (s_it = scanlines.begin(); s_it != scanlines.end(); s_it++) {
     if (s_it->points.size() == 0) {
       //(s_it - 1)->points.insert((s_it - 1)->points.end(), s_it->points.begin(), s_it->points.end());
@@ -331,7 +331,7 @@ std::vector<Vec3> PointCloudSegmenter::ScanLineRun(std::vector<Vec3>& cloud) {
   for (int i = 1; i < scanlines.size(); i++) {
     scan_current = &(scanlines[i]);
     FindRuns(*scan_current);
-    UpdateLabels(*scan_current, *scan_above); 
+    UpdateLabels(*scan_current, *scan_above);
     scan_above = scan_current;
   }
 
@@ -339,7 +339,7 @@ std::vector<Vec3> PointCloudSegmenter::ScanLineRun(std::vector<Vec3>& cloud) {
   int stop_s = clock();
   std::cout << "SLR runtime: " << (stop_s - start_s) / double(CLOCKS_PER_SEC) * 1000 << " ms" << std::endl;
 
-  //Extract and return clusters 
+  //Extract and return clusters
   return ExtractClusters(scanlines);
 }
 
@@ -361,10 +361,10 @@ void PointCloudSegmenter::FindRuns(Scanline& cur_scanline) {
   }
 
   if (i < cur_scanline.points.size() ) {
-    cur_scanline.s_queue.push_back(i); 
+    cur_scanline.s_queue.push_back(i);
 
     if (i == cur_scanline.points.size() - 1){
-      cur_scanline.e_queue.push_back(i); 
+      cur_scanline.e_queue.push_back(i);
       return;
     }
 
@@ -386,7 +386,7 @@ void PointCloudSegmenter::FindRuns(Scanline& cur_scanline) {
           cur_scanline.e_queue.push_back(i);
         }
       } else {
-        //check distance to prev point 
+        //check distance to prev point
         if ( (cur_scanline.points[i]).distance(cur_scanline.points[i-1]) > this->th_run ) {
           cur_scanline.e_queue.push_back(i - 1);
           cur_scanline.s_queue.push_back(i);
@@ -410,9 +410,9 @@ void PointCloudSegmenter::FindRuns(Scanline& cur_scanline) {
 /*
   Update Labels:
     1. Loop through all runs
-    2. For each point in each run, find its nearest neigbor 
+    2. For each point in each run, find its nearest neigbor
        in the above scanline
-    3. If there are neigbors within th->merge: 
+    3. If there are neigbors within th->merge:
          Pick the min label of the label candidates and merge all labels to that one
        Else:
          Set all labels in run to newlabel and increment newlabel
@@ -435,7 +435,7 @@ void PointCloudSegmenter::UpdateLabels(Scanline &scan_current, Scanline &scan_ab
     for (int k = start_index; k <= end_index; k++) {
       if (scan_current.points[k].label != -3) {
         int nearest_label = FindNearestNeighbor(scan_current, scan_above, start_index, end_index, k);
-        
+
         if (nearest_label != -1 && std::find(labels_to_merge.begin(), labels_to_merge.end(), nearest_label) == labels_to_merge.end()) {
           labels_to_merge.push_back( nearest_label );
         }
@@ -448,7 +448,7 @@ void PointCloudSegmenter::UpdateLabels(Scanline &scan_current, Scanline &scan_ab
       this->next.push_back(-1);
       this->tail.push_back(this->new_label);
       this->rtable.push_back(this->new_label);
-    } 
+    }
 
     else {
       int min_label = *std::min_element(labels_to_merge.begin(), labels_to_merge.end());;
@@ -456,7 +456,7 @@ void PointCloudSegmenter::UpdateLabels(Scanline &scan_current, Scanline &scan_ab
       SetRunLabel(scan_current, start_index, end_index, min_label);
       MergeLabels(labels_to_merge, min_label);
     }
-    
+
     labels_to_merge.clear();
   }
 }
@@ -509,7 +509,7 @@ void PointCloudSegmenter::MergeOperation(int u, int v) {
 /*
   Update labels of points in a run.
 
-  TODO: Make array of run labels to coincide with 
+  TODO: Make array of run labels to coincide with
         s_queue and e_queue to reduce vector accesses.
 */
 void PointCloudSegmenter::SetRunLabel(Scanline &scan_current, int start_index, int end_index, int set_label) {
@@ -567,7 +567,7 @@ int PointCloudSegmenter::FindNearestNeighbor(Scanline& scan_current, Scanline& s
 
 
 //Perform label updating by looking up current labels in rtable
-//Group points into clusters 
+//Group points into clusters
 std::vector<Vec3> PointCloudSegmenter::ExtractClusters( std::vector<Scanline>& scanlines ) {
   std::vector<Scanline>::iterator s_it;
   std::vector<Vec3>::iterator v_it;
@@ -579,8 +579,8 @@ std::vector<Vec3> PointCloudSegmenter::ExtractClusters( std::vector<Scanline>& s
       if (v_it->label < this->rtable.size() && v_it->label != -3) {
         v_it->label = this->rtable[v_it->label];
         out_points.push_back(*v_it);
-      }     
-    }  
+      }
+    }
   }
   return out_points;
 }

@@ -9,8 +9,8 @@ void generateOutput(std::vector<Vec3>& pts, std::string file_name);
 int main() {
 
   int n_iters = 3;
-  int n_lpr = 20; 
-  int n_segs = 3; 
+  int n_lpr = 20;
+  int n_segs = 3;
   double seed_thresh = 0.4; //meters
   double dist_thresh = 0.2; //meters
 
@@ -31,7 +31,7 @@ int main() {
   std::cout << "Input size: " << input_cloud.size() << std::endl;
 
   segmenter.GroundPlaneFitting(input_cloud);
-  
+
   predicted_ground = segmenter.GetGroundPoints();
   //predicted_not_ground = segmenter.GetNonGroundPoints();
 
@@ -58,7 +58,7 @@ void parseInput(std::vector<Vec3>& in, PointCloudSegmenter seg) {
         }
       }
     }
-    
+
   }
 }
 

@@ -1,3 +1,4 @@
 devkit
 src/main
 src/*.txt
+.DS_Store

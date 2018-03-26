@@ -44,7 +44,7 @@ int main() {
 
 //Convert input KITTI velodyne data files to vector<Vec3>
 void parseInput(std::vector<Vec3>& in, PointCloudSegmenter seg) {
-  std::ifstream infile("../velodyne_points_1/data/0000000001.xyz");
+  std::ifstream infile("../velodyne_points_1/data/0000000001.txt");
   double x, y, z, v;
   int k = 0;
 

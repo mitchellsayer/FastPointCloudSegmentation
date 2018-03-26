@@ -1,4 +1,8 @@
+# Dependencies
 devkit
-src/main
-src/*.txt
+
+# Build output
+build
+
+# Misc. files
 .DS_Store

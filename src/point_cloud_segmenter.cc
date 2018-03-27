@@ -14,8 +14,6 @@
 #include "point_cloud_segmenter.h"
 #include "nanoflann.hpp"
 
-typedef nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L2_Simple_Adaptor<float, PointCloud>, PointCloud, 3> point_cloud_tree;
-
 //************************************************************************************************
 
 Vec3 cloud_centroid;
@@ -548,12 +546,10 @@ int PointCloudSegmenter::FindNearestNeighbor(Scanline& scan_current, Scanline& s
   size_t ret_index;
   float out_dist_sqr;
 
-  nanoflann::KNNResultSet<num_t> results(num_results);
+  nanoflann::KNNResultSet<float> results(num_results);
   results.init(&ret_index, &out_dist_sqr);
 
   scan_above.tree->findNeighbors(results, &query[0], nanoflann::SearchParams(10));
-
-  std::cout << "Test results " << results;
 
   //if (min_dist == 1000) {
     for (int i = 0; i < scan_above.points.size(); i++) {

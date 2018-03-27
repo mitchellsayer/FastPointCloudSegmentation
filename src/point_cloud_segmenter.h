@@ -7,6 +7,10 @@ struct PointCloud {
 
   PointCloud(std::vector<Vec3> & points) : pts(points) {}
 
+  inline float kdtree_distance(const float *p1, const size_t idx_p2,size_t size) const {
+    return pts[idx_p2].distance(p1);
+  }
+
   // Must return the number of data points
   inline size_t kdtree_get_point_count() const { return pts.size(); }
 
@@ -27,12 +31,14 @@ struct PointCloud {
   bool kdtree_get_bbox(BBOX& /* bb */) const { return false; }
 };
 
+typedef nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L2_Simple_Adaptor<float, PointCloud>, PointCloud, 3> point_cloud_tree;
+
 struct Scanline {
   std::vector<int> s_queue;
   std::vector<int> e_queue;
   std::vector<int> labels;
   std::vector<Vec3> points;
-  nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L2_Simple_Adaptor<float, PointCloud>, PointCloud, 3> * tree;
+  point_cloud_tree * tree;
 
   ~Scanline() {
     delete tree;

@@ -25,4 +25,11 @@ class Vec3 {
       float z_new = this->z - v1.z;
       return sqrt(x_new * x_new + y_new * y_new + z_new * z_new);
     }
+
+    float distance(const float * v1) {
+      float x_new = this->x - v1[0];
+      float y_new = this->y - v1[1];
+      float z_new = this->z - v1[2];
+      return sqrt(x_new * x_new + y_new * y_new + z_new * z_new);
+    }
 };

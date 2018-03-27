@@ -16,4 +16,5 @@ This is a modified implementation of the point cloud segmentation method describ
 
 ## Libraries Used
 
-* nanoflann (fast kd-tree C++ library)
+* [nanoflann](https://github.com/jlblancoc/nanoflann) (fast C++ implementation of a kd-tree)
+* [PointCloudLibrary](https://github.com/PointCloudLibrary/pcl) (point cloud utilities)

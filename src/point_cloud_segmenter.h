@@ -2,22 +2,22 @@
 #include "vec3.h"
 #include "nanoflann.hpp"
 
-struct PointWrapper {
+struct ScanlinePoint {
   Vec3 point;
-  size_t original_index;
+  size_t scanline_index;
 
-  PointWrapper(Vec3 pt, size_t index) : point(pt), original_index(index) {}
+  ScanlinePoint(Vec3 pt, size_t index) : point(pt), scanline_index(index) {}
 };
 
 struct PointCloud {
-  std::vector<PointWrapper> points;
+  std::vector<ScanlinePoint> points;
 
   PointCloud(std::vector<Vec3> & pts) {
     // Filter out ground labels
     for (int i = 0; i < pts.size(); i++) {
       Vec3 point = pts[i];
       if (point.label != -3) {
-        PointWrapper wrapper(point, i);
+        ScanlinePoint wrapper(point, i);
         points.push_back(wrapper);
       }
     }

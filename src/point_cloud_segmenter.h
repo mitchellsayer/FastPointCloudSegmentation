@@ -2,16 +2,29 @@
 #include "vec3.h"
 #include "nanoflann.hpp"
 
+struct PointWrapper {
+  Vec3 point;
+  size_t original_index;
+
+  PointWrapper(Vec3 pt, size_t index) : point(pt), original_index(index) {}
+};
+
 struct PointCloud {
-  std::vector<Vec3> points;
+  std::vector<PointWrapper> points;
 
   PointCloud(std::vector<Vec3> & pts) {
     // Filter out ground labels
-    std::copy_if (pts.begin(), pts.end(), std::back_inserter(this->points), [](Vec3 vec) { return vec.label != -3;} );
+    for (int i = 0; i < pts.size(); i++) {
+      Vec3 point = pts[i];
+      if (point.label != -3) {
+        PointWrapper wrapper(point, i);
+        points.push_back(wrapper);
+      }
+    }
   }
 
   inline float kdtree_distance(const float * p1, const size_t idx_p2, size_t size) const {
-    return points[idx_p2].distance(p1);
+    return points[idx_p2].point.distance(p1);
   }
 
   // Must return the number of data points
@@ -22,9 +35,9 @@ struct PointCloud {
   //  "if/else's" are actually solved at compile time.
   inline float kdtree_get_pt(const size_t idx, int dim) const
   {
-    if (dim == 0) return points[idx].x;
-    else if (dim == 1) return points[idx].y;
-    else return points[idx].z;
+    if (dim == 0) return points[idx].point.x;
+    else if (dim == 1) return points[idx].point.y;
+    else return points[idx].point.z;
   }
 
   // Optional bounding-box computation: return false to default to a standard bbox computation loop.

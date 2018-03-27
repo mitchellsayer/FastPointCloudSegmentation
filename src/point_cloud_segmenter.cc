@@ -337,7 +337,6 @@ std::vector<Vec3> PointCloudSegmenter::ScanLineRun(std::vector<Vec3>& cloud) {
     this->next.push_back(-1);
     this->tail.push_back(this->new_label);
     this->rtable.push_back(this->new_label);
-
   }
 
   //Find runs for all subsequent scanlines and propogate labels
@@ -555,7 +554,12 @@ int PointCloudSegmenter::FindNearestNeighbor(Scanline& scan_current, Scanline& s
   // Perform search
   scan_above.tree->findNeighbors(results, &query[0], nanoflann::SearchParams(10));
 
-  return result_dist_squared < this->th_merge * this->th_merge ? scan_above.tree_point_cloud->points[result_index].label : -1;
+  if (result_dist_squared < this->th_merge * this->th_merge) {
+    size_t original_index = scan_above.tree_point_cloud->points[result_index].original_index;
+    return scan_above.points[original_index].label;
+  }
+
+  return  -1;
 }
 
 

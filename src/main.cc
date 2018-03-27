@@ -33,7 +33,7 @@ int main() {
   segmenter.GroundPlaneFitting(input_cloud);
 
   predicted_ground = segmenter.GetGroundPoints();
-  //predicted_not_ground = segmenter.GetNonGroundPoints();
+  predicted_not_ground = segmenter.GetNonGroundPoints();
 
   predicted_clusters = segmenter.ScanLineRun(segmenter.p_all);
   generateOutput(predicted_clusters, "predicted_clusters.txt");

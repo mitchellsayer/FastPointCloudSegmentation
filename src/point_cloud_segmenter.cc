@@ -553,7 +553,7 @@ int PointCloudSegmenter::FindNearestNeighbor(Scanline& scan_current, Scanline& s
 
   for (int i = 0; i < num_results; i++) {
     if (scan_above.points[i].label != -3) {
-      cur_dist = scan_current.points[point_index].distance(scan_above.points[i]);
+      cur_dist = scan_current.points[point_index].distance(scan_above.points[ret_index[i]]);
 
       if (cur_dist < min_dist) {
         min_dist = cur_dist;

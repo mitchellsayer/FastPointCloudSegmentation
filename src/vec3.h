@@ -32,10 +32,6 @@ class Vec3 {
       float z_new = this->z - v1[2];
       return x_new * x_new + y_new * y_new + z_new * z_new;
     }
-
-    float * to_array() {
-      return new float[3] { this->x, this->y, this->z };
-    }
 };
 
 std::ostream& operator<<(std::ostream&, const Vec3& vec);

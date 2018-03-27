@@ -542,7 +542,8 @@ int PointCloudSegmenter::FindNearestNeighbor(Scanline& scan_current, Scanline& s
   int above_end = floor(end_index * conversion_factor);
 
   // Determine nearest point to search at
-  float * query = scan_current.points[point_index].to_array();
+  Vec3 current = scan_current.points[point_index];
+  float query[3] = {current.x, current.y, current.z};
 
   // Set up KNN result set
   size_t result_index;

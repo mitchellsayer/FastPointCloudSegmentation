@@ -542,8 +542,7 @@ int PointCloudSegmenter::FindNearestNeighbor(Scanline& scan_current, Scanline& s
   int above_end = floor(end_index * conversion_factor);
 
   // Determine nearest point to search at
-  Vec3 & current = scan_current.points[point_index];
-  float query[3] = { current.x, current.y, current.z };
+  float * query = scan_current.points[point_index].to_array();
 
   // Set up KNN result set
   size_t result_index;
@@ -555,8 +554,7 @@ int PointCloudSegmenter::FindNearestNeighbor(Scanline& scan_current, Scanline& s
   scan_above.tree->findNeighbors(results, &query[0], nanoflann::SearchParams(10));
 
   if (result_dist_squared < this->th_merge * this->th_merge) {
-    size_t original_index = scan_above.tree_point_cloud->points[result_index].scanline_index;
-    return scan_above.points[original_index].label;
+    return scan_above.tree_point_cloud->get_label(result_index);
   }
 
   return  -1;

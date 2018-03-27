@@ -2,43 +2,53 @@
 #include "vec3.h"
 #include "nanoflann.hpp"
 
-struct ScanlinePoint {
-  Vec3 point;
-  size_t scanline_index;
-
-  ScanlinePoint(Vec3 pt, size_t index) : point(pt), scanline_index(index) {}
-};
-
 struct ScanlinePointCloud {
 
-  std::vector<ScanlinePoint> points;
+  struct ScanlinePoint {
+    Vec3 point;
+    size_t scanline_index;
 
-  ScanlinePointCloud(std::vector<Vec3> & pts) {
+    ScanlinePoint(Vec3 pt, size_t index) : point(pt), scanline_index(index) {}
+  };
+
+  std::vector<Vec3> & scanline_points;
+  std::vector<ScanlinePoint> filtered_points;
+
+  ScanlinePointCloud(std::vector<Vec3> & pts) : scanline_points(pts) {
     // Filter out ground labels
     for (int i = 0; i < pts.size(); i++) {
       Vec3 point = pts[i];
       if (point.label != -3) {
         ScanlinePoint wrapper(point, i);
-        points.push_back(wrapper);
+        filtered_points.push_back(wrapper);
       }
     }
   }
 
+  // Returns the label associated with the results index from a kdtree lookup.
+  // The issue with using the results Vec3 directly is that it contains no label information.
+  // We need to access the full scanline points vector to determine Vec3's label.
+  float get_label(size_t results_index) {
+    size_t scanline_index = filtered_points[results_index].scanline_index;
+    return scanline_points[scanline_index].label;
+  }
+
+  // Returns the squared distance between a point p1 in float[] form and the point at idx_p2
   inline float kdtree_distance(const float * p1, const size_t idx_p2, size_t size) const {
-    return points[idx_p2].point.distance(p1);
+    return filtered_points[idx_p2].point.distance_squared(p1);
   }
 
   // Must return the number of data points
-  inline size_t kdtree_get_point_count() const { return points.size(); }
+  inline size_t kdtree_get_point_count() const { return filtered_points.size(); }
 
   // Returns the dim'th component of the idx'th point in the class:
   // Since this is inlined and the "dim" argument is typically an immediate value, the
   //  "if/else's" are actually solved at compile time.
   inline float kdtree_get_pt(const size_t idx, int dim) const
   {
-    if (dim == 0) return points[idx].point.x;
-    else if (dim == 1) return points[idx].point.y;
-    else return points[idx].point.z;
+    if (dim == 0) return filtered_points[idx].point.x;
+    else if (dim == 1) return filtered_points[idx].point.y;
+    else return filtered_points[idx].point.z;
   }
 
   // Optional bounding-box computation: return false to default to a standard bbox computation loop.

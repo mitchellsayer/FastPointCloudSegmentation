@@ -30,6 +30,11 @@ bool CompareTheta(Vec3 const& a, Vec3 const& b) {
   return a.theta_horizontal < b.theta_horizontal;
 }
 
+// Allows Vec3 to be printed directly to std::cout or std::cerr
+std::ostream& operator<<(std::ostream& os, const Vec3& vec) {
+  return os << vec.x << ";" << vec.y << ";" << vec.z << ": " << vec.label;
+}
+
 
 /*
   Main implementation of GPF
@@ -303,12 +308,14 @@ std::vector<Vec3> PointCloudSegmenter::ScanLineRun(std::vector<Vec3>& cloud) {
     } else {
       std::sort(s_it->points.begin(), s_it->points.end(), CompareTheta);
 
-      PointCloud point_cloud(s_it->points);
+      if (s_it->points.size() > 0) {
+        PointCloud * tree_point_cloud = new PointCloud(s_it->points);
+        PointCloudTree * tree = new PointCloudTree(3, *tree_point_cloud, nanoflann::KDTreeSingleIndexAdaptorParams(10));
+        tree->buildIndex();
 
-      point_cloud_tree * tree = new point_cloud_tree(3 /* dim */, point_cloud, nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */));
-      tree->buildIndex();
-
-      s_it->tree = tree;
+        s_it->tree_point_cloud = tree_point_cloud;
+        s_it->tree = tree;
+      }
     }
   }
 
@@ -535,38 +542,20 @@ int PointCloudSegmenter::FindNearestNeighbor(Scanline& scan_current, Scanline& s
   int above_start = floor(start_index * conversion_factor);
   int above_end = floor(end_index * conversion_factor);
 
-  double min_dist = 1000;
-  double cur_dist;
-  int nearest_label;
-
+  // Determine nearest point to search at
   Vec3 & current = scan_current.points[point_index];
   float query[3] = { current.x, current.y, current.z };
 
-  const int num_results = 10;
-  unsigned long ret_index[num_results];
-  float out_dist_sqr[num_results];
+  // Set up KNN result set
+  size_t result_index;
+  float result_dist_squared;
+  nanoflann::KNNResultSet<float> results(1);
+  results.init(&result_index, &result_dist_squared);
 
-  nanoflann::KNNResultSet<float> results(num_results);
-  results.init(&ret_index[0], &out_dist_sqr[0]);
-
+  // Perform search
   scan_above.tree->findNeighbors(results, &query[0], nanoflann::SearchParams(10));
 
-  for (int i = 0; i < num_results; i++) {
-    if (scan_above.points[i].label != -3) {
-      cur_dist = scan_current.points[point_index].distance(scan_above.points[ret_index[i]]);
-
-      if (cur_dist < min_dist) {
-        min_dist = cur_dist;
-        nearest_label = scan_above.points[i].label;
-      }
-    }
-  }
-
-  if (min_dist < this->th_merge) {
-    return nearest_label;
-  } else {
-    return -1;
-  }
+  return result_dist_squared < this->th_merge * this->th_merge ? scan_above.tree_point_cloud->points[result_index].label : -1;
 }
 
 

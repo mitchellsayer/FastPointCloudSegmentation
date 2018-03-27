@@ -3,25 +3,28 @@
 #include "nanoflann.hpp"
 
 struct PointCloud {
-  std::vector<Vec3> & pts;
+  std::vector<Vec3> points;
 
-  PointCloud(std::vector<Vec3> & points) : pts(points) {}
+  PointCloud(std::vector<Vec3> & pts) {
+    // Filter out ground labels
+    std::copy_if (pts.begin(), pts.end(), std::back_inserter(this->points), [](Vec3 vec) { return vec.label != -3;} );
+  }
 
-  inline float kdtree_distance(const float *p1, const size_t idx_p2,size_t size) const {
-    return pts[idx_p2].distance(p1);
+  inline float kdtree_distance(const float * p1, const size_t idx_p2, size_t size) const {
+    return points[idx_p2].distance(p1);
   }
 
   // Must return the number of data points
-  inline size_t kdtree_get_point_count() const { return pts.size(); }
+  inline size_t kdtree_get_point_count() const { return points.size(); }
 
   // Returns the dim'th component of the idx'th point in the class:
   // Since this is inlined and the "dim" argument is typically an immediate value, the
   //  "if/else's" are actually solved at compile time.
   inline float kdtree_get_pt(const size_t idx, int dim) const
   {
-    if (dim == 0) return pts[idx].x;
-    else if (dim == 1) return pts[idx].y;
-    else return pts[idx].z;
+    if (dim == 0) return points[idx].x;
+    else if (dim == 1) return points[idx].y;
+    else return points[idx].z;
   }
 
   // Optional bounding-box computation: return false to default to a standard bbox computation loop.
@@ -31,19 +34,22 @@ struct PointCloud {
   bool kdtree_get_bbox(BBOX& /* bb */) const { return false; }
 };
 
-typedef nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L2_Simple_Adaptor<float, PointCloud>, PointCloud, 3> point_cloud_tree;
+typedef nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L2_Simple_Adaptor<float, PointCloud>, PointCloud, 3> PointCloudTree;
 
 struct Scanline {
   std::vector<int> s_queue;
   std::vector<int> e_queue;
   std::vector<int> labels;
   std::vector<Vec3> points;
-  point_cloud_tree * tree;
 
-  Scanline() : tree(nullptr) {}
+  PointCloud * tree_point_cloud;
+  PointCloudTree * tree;
+
+  Scanline() : tree_point_cloud(nullptr), tree(nullptr) {}
 
   ~Scanline() {
     delete tree;
+    delete tree_point_cloud;
   }
 };
 

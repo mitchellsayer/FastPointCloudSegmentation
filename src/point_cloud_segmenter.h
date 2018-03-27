@@ -40,6 +40,8 @@ struct Scanline {
   std::vector<Vec3> points;
   point_cloud_tree * tree;
 
+  Scanline() : tree(nullptr) {}
+
   ~Scanline() {
     delete tree;
   }

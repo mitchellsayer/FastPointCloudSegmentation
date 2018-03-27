@@ -542,29 +542,27 @@ int PointCloudSegmenter::FindNearestNeighbor(Scanline& scan_current, Scanline& s
   Vec3 & current = scan_current.points[point_index];
   float query[3] = { current.x, current.y, current.z };
 
-  const size_t num_results = 1;
-  size_t ret_index;
-  float out_dist_sqr;
+  const int num_results = 10;
+  unsigned long ret_index[num_results];
+  float out_dist_sqr[num_results];
 
   nanoflann::KNNResultSet<float> results(num_results);
-  results.init(&ret_index, &out_dist_sqr);
+  results.init(&ret_index[0], &out_dist_sqr[0]);
 
   scan_above.tree->findNeighbors(results, &query[0], nanoflann::SearchParams(10));
 
-  //if (min_dist == 1000) {
-    for (int i = 0; i < scan_above.points.size(); i++) {
-      if (scan_above.points[i].label != -3) {
-        cur_dist = scan_current.points[point_index].distance(scan_above.points[i]);
+  for (int i = 0; i < num_results; i++) {
+    if (scan_above.points[i].label != -3) {
+      cur_dist = scan_current.points[point_index].distance(scan_above.points[i]);
 
-        if (cur_dist < min_dist) {
-          min_dist = cur_dist;
-          nearest_label = scan_above.points[i].label;
-        }
+      if (cur_dist < min_dist) {
+        min_dist = cur_dist;
+        nearest_label = scan_above.points[i].label;
       }
     }
-  //}
+  }
 
-  if ( min_dist < this->th_merge) {
+  if (min_dist < this->th_merge) {
     return nearest_label;
   } else {
     return -1;

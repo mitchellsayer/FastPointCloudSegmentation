@@ -541,17 +541,19 @@ int PointCloudSegmenter::FindNearestNeighbor(Scanline& scan_current, Scanline& s
   double cur_dist;
   int nearest_label;
 
-  // for (int i = above_start; i <= above_end; i++) {
+  Vec3 & current = scan_current.points[point_index];
+  float query[3] = { current.x, current.y, current.z };
 
-  //   if (scan_above.points[i].label != -3) {
-  //     cur_dist = scan_current.points[point_index].distance(scan_above.points[i]);
+  const size_t num_results = 1;
+  size_t ret_index;
+  float out_dist_sqr;
 
-  //     if (cur_dist < min_dist) {
-  //       min_dist = cur_dist;
-  //       nearest_label = scan_above.points[i].label;
-  //     }
-  //   }
-  // }
+  nanoflann::KNNResultSet<num_t> results(num_results);
+  results.init(&ret_index, &out_dist_sqr);
+
+  scan_above.tree->findNeighbors(results, &query[0], nanoflann::SearchParams(10));
+
+  std::cout << "Test results " << results;
 
   //if (min_dist == 1000) {
     for (int i = 0; i < scan_above.points.size(); i++) {

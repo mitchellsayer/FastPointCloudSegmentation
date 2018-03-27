@@ -9,10 +9,11 @@ struct ScanlinePoint {
   ScanlinePoint(Vec3 pt, size_t index) : point(pt), scanline_index(index) {}
 };
 
-struct PointCloud {
+struct ScanlinePointCloud {
+
   std::vector<ScanlinePoint> points;
 
-  PointCloud(std::vector<Vec3> & pts) {
+  ScanlinePointCloud(std::vector<Vec3> & pts) {
     // Filter out ground labels
     for (int i = 0; i < pts.size(); i++) {
       Vec3 point = pts[i];
@@ -47,7 +48,7 @@ struct PointCloud {
   bool kdtree_get_bbox(BBOX& /* bb */) const { return false; }
 };
 
-typedef nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L2_Simple_Adaptor<float, PointCloud>, PointCloud, 3> PointCloudTree;
+typedef nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L2_Simple_Adaptor<float, ScanlinePointCloud>, ScanlinePointCloud, 3> ScanlineKDTree;
 
 struct Scanline {
   std::vector<int> s_queue;
@@ -55,8 +56,8 @@ struct Scanline {
   std::vector<int> labels;
   std::vector<Vec3> points;
 
-  PointCloud * tree_point_cloud;
-  PointCloudTree * tree;
+  ScanlinePointCloud * tree_point_cloud;
+  ScanlineKDTree * tree;
 
   Scanline() : tree_point_cloud(nullptr), tree(nullptr) {}
 

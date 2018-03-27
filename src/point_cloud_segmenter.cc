@@ -309,8 +309,8 @@ std::vector<Vec3> PointCloudSegmenter::ScanLineRun(std::vector<Vec3>& cloud) {
       std::sort(s_it->points.begin(), s_it->points.end(), CompareTheta);
 
       if (s_it->points.size() > 0) {
-        PointCloud * tree_point_cloud = new PointCloud(s_it->points);
-        PointCloudTree * tree = new PointCloudTree(3, *tree_point_cloud, nanoflann::KDTreeSingleIndexAdaptorParams(10));
+        ScanlinePointCloud * tree_point_cloud = new ScanlinePointCloud(s_it->points);
+        ScanlineKDTree * tree = new ScanlineKDTree(3, *tree_point_cloud, nanoflann::KDTreeSingleIndexAdaptorParams(10));
         tree->buildIndex();
 
         s_it->tree_point_cloud = tree_point_cloud;
